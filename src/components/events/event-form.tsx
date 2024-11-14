@@ -1,4 +1,4 @@
-import { useState } from "react"
+import {useEffect, useState} from "react"
 import { useForm } from "react-hook-form"
 import {zodResolver} from "@hookform/resolvers/zod";
 import { toast } from "sonner"
@@ -43,6 +43,29 @@ export function EventForm({ open, onClose, onSubmit, initialData }: EventFormPro
             description: "",
         },
     })
+
+    useEffect(() => {
+        if (initialData) {
+            // Format the date to match the datetime-local input format
+            const formattedDate = new Date(initialData.date)
+                .toISOString()
+                .slice(0, 16); // Get YYYY-MM-DDThh:mm format
+
+            form.reset({
+                title: initialData.title,
+                date: formattedDate,
+                location: initialData.location,
+                description: initialData.description || "",
+            });
+        } else {
+            form.reset({
+                title: "",
+                date: "",
+                location: "",
+                description: "",
+            });
+        }
+    }, [initialData, form]);
 
     const handleSubmit = async (data: EventFormValues) => {
         try {
