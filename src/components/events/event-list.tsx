@@ -1,6 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { PlusCircle } from 'lucide-react'
-
 import { Button } from '@/components/ui/button'
 import { EventCard } from './event-card'
 import { EventForm } from './event-form'
@@ -9,18 +8,45 @@ import { EventFormValues } from '@/lib/validations/event'
 
 export function EventList() {
     const [showForm, setShowForm] = useState(false)
-    const { events, selectedEvent, setSelectedEvent, createEvent, updateEvent, deleteEvent } = useEventStore()
+    const {
+        events,
+        loading,
+        selectedEvent,
+        setSelectedEvent,
+        fetchEvents,
+        createEvent,
+        updateEvent,
+        deleteEvent
+    } = useEventStore()
 
-    const handleCreate = (data: EventFormValues) => {
-        createEvent(data)
-        setShowForm(false)
+    useEffect(() => {
+        fetchEvents().catch(error => console.error(error))
+    }, [fetchEvents])
+
+    const handleCreate = async (data: EventFormValues) => {
+        try {
+            createEvent(data)
+            setShowForm(false)
+        } catch (error) {
+            console.error(error)
+            // Error is handled by the store
+        }
     }
 
-    const handleUpdate = (data: EventFormValues) => {
+    const handleUpdate = async (data: EventFormValues) => {
         if (selectedEvent) {
-            updateEvent(selectedEvent.id, data)
-            setSelectedEvent(null)
+            try {
+                updateEvent(selectedEvent.id, data)
+                setSelectedEvent(null)
+            } catch (error) {
+                console.error(error)
+                // Error is handled by the store
+            }
         }
+    }
+
+    if (loading && events.length === 0) {
+        return <div className="flex items-center justify-center h-96">Loading...</div>
     }
 
     return (

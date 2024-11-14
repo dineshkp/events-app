@@ -1,13 +1,16 @@
 import {create} from 'zustand'
 import {toast} from 'sonner'
 import {Event, CreateEventInput, UpdateEventInput} from '@/types/event'
+import { eventApi } from '@/lib/api/events'
 
 interface EventStore {
     events: Event[]
     loading: boolean
+    error: string | null
     selectedEvent: Event | null
 
     // Actions
+    fetchEvents: () => Promise<void>
     setSelectedEvent: (event: Event | null) => void
     createEvent: (data: CreateEventInput) => void
     updateEvent: (id: string, data: UpdateEventInput) => void
@@ -17,42 +20,86 @@ interface EventStore {
 export const useEventStore = create<EventStore>((set, get) => ({
     events: [],
     loading: false,
+    error: null,
     selectedEvent: null,
 
     setSelectedEvent: (event) => set({selectedEvent: event}),
 
-    createEvent: (data) => {
-        const events = get().events
-        const newEvent: Event = {
-            id: crypto.randomUUID(),
-            ...data,
+    fetchEvents: async () => {
+        set({ loading: true, error: null });
+        try {
+            const events = await eventApi.getAll();
+            set({ events });
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Failed to fetch events';
+            set({ error: message });
+            toast.error(message);
+        } finally {
+            set({ loading: false });
         }
-
-        set({events: [...events, newEvent]})
-        toast.success('Event created successfully')
     },
 
-    updateEvent: (id, data) => {
-        const events = get().events
-        const updatedEvents = events.map((event) =>
-            event.id === id ? {...event, ...data} : event
-        )
-
-        set({events: updatedEvents, selectedEvent: null})
-        toast.success('Event updated successfully')
+    createEvent: async (data) => {
+        set({ loading: true, error: null });
+        try {
+            const newEvent = await eventApi.create(data);
+            set((state) => ({ events: [newEvent, ...state.events] }));
+            toast.success('Event created successfully');
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Failed to create event';
+            set({ error: message });
+            toast.error(message);
+            throw error;
+        } finally {
+            set({ loading: false });
+        }
     },
 
-    deleteEvent: (id) => {
-        const events = get().events
-        const previousEvents = [...events]
+    updateEvent: async (id, data) => {
+        set({ loading: true, error: null });
+        try {
+            await eventApi.update(id, data);
+            set((state) => ({
+                events: state.events.map((event) =>
+                    event.id === id ? { ...event, ...data } : event
+                ),
+                selectedEvent: null,
+            }));
+            toast.success('Event updated successfully');
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Failed to update event';
+            set({ error: message });
+            toast.error(message);
+            throw error;
+        } finally {
+            set({ loading: false });
+        }
+    },
 
-        set({events: events.filter((event) => event.id !== id)})
+    deleteEvent: async (id) => {
+        const previousEvents = get().events;
 
-        toast.success('Event deleted', {
-            action: {
-                label: 'Undo',
-                onClick: () => set({events: previousEvents})
-            },
-        })
+        // Optimistic update
+        set((state) => ({
+            events: state.events.filter((event) => event.id !== id),
+        }));
+
+        try {
+            await eventApi.delete(id);
+            toast.success('Event deleted', {
+                action: {
+                    label: 'Undo',
+                    onClick: async () => {
+                        set({ events: previousEvents });
+                        // You might want to implement restore endpoint in the backend
+                    },
+                },
+            });
+        } catch (error) {
+            // Rollback on error
+            set({ events: previousEvents });
+            const message = error instanceof Error ? error.message : 'Failed to delete event';
+            toast.error(message);
+        }
     },
 }))
