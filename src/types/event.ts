@@ -3,7 +3,7 @@ export interface Event {
     title: string;
     date: string;
     location: string;
-    description: string;
+    description?: string;
 }
 
 export type CreateEventInput = Omit<Event, 'id'>;
