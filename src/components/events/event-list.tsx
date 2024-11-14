@@ -50,7 +50,7 @@ export function EventList() {
     }
 
     return (
-        <div>
+        <div className="w-full p-10">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">Events</h2>
                 <Button onClick={() => setShowForm(true)}>

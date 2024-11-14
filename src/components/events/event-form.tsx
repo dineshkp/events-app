@@ -48,7 +48,6 @@ export function EventForm({ open, onClose, onSubmit, initialData }: EventFormPro
         try {
             setLoading(true)
             onSubmit(data)
-            toast.success(initialData ? "Event updated" : "Event created")
             onClose()
         } catch (error) {
             console.error(error)
@@ -124,7 +123,7 @@ export function EventForm({ open, onClose, onSubmit, initialData }: EventFormPro
                             )}
                         />
                         <div className="flex justify-end gap-x-2">
-                            <Button type="button" variant="outline" onClick={onClose}>
+                            <Button type="button" variant="destructive" onClick={onClose}>
                                 Cancel
                             </Button>
                             <Button type="submit" disabled={loading}>

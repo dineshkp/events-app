@@ -1,31 +1,21 @@
-import { Calendar, Home, Settings } from "lucide-react"
+import {Calendar} from "lucide-react"
 import {
     Sidebar,
     SidebarContent,
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
+    SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarHeader,
 } from "@/components/ui/sidebar"
 
 const items = [
     {
-        title: "Dashboard",
-        url: "/",
-        icon: Home,
-    },
-    {
         title: "Events",
-        url: "/events",
+        url: "/",
         icon: Calendar,
-    },
-    {
-        title: "Settings",
-        url: "/settings",
-        icon: Settings,
     },
 ]
 
@@ -44,7 +34,7 @@ export function AppSidebar() {
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
                                         <a href={item.url}>
-                                            <item.icon className="h-4 w-4" />
+                                            <item.icon className="h-4 w-4"/>
                                             <span>{item.title}</span>
                                         </a>
                                     </SidebarMenuButton>

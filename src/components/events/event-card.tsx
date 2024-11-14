@@ -17,14 +17,14 @@ export function EventCard({ event, onEdit, onDelete }: EventCardProps) {
                     <CardTitle className="text-xl">{event.title}</CardTitle>
                     <div className="flex gap-2">
                         <Button
-                            variant="ghost"
+                            variant="outline"
                             size="icon"
                             onClick={() => onEdit(event)}
                         >
                             <Pencil className="h-4 w-4" />
                         </Button>
                         <Button
-                            variant="ghost"
+                            variant="destructive"
                             size="icon"
                             onClick={() => onDelete(event.id)}
                         >
