@@ -1,4 +1,5 @@
 import {Button} from "@/components/ui/button";
+import {ToasterProvider} from "@/components/providers/toaster-provider";
 
 function App() {
 
@@ -6,6 +7,7 @@ function App() {
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Events App</h1>
             <Button>Click me</Button>
+            <ToasterProvider />
         </div>
     )
 }
